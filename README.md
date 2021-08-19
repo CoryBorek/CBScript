@@ -12,6 +12,10 @@ To Build a CBScript program, you need a few things.
 ## How it works
 It takes a CBScript project, and compiles it into a Maven Java software, which then is built as a jar.
 
+## Running
+Run the Java program through console. `java -jar CBScript-(version).jar PATH/TO/PROJECT PATH/TO/MAVEN_HOME`
+It should compile, and the jar should end up in the project target folder.
+
 ## Contributing
 Feel free to fork and Send a PR, i'd love to see what anyone can contribute.
 
