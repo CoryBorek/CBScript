@@ -224,15 +224,16 @@ public class ClassParser {
             else if (item.containsKey("runfn")) {
                 out += item.get("runfn") + "(";
                 if (item.containsKey("args")) {
-                    String[] args = item.get("args").toString().split(",");
+                    String argin = item.get("args").toString().replace(",,", "commmmma");
+                    String[] args = argin.split(",");
                     String argout = "";
                     for (String arg : args) {
+                        arg = arg.replace("commmmma", ",");
+                        //Parses output as type
                         if (arg.startsWith(";;")) argout += arg.replace(";;", "");
-                        else if (isBoolean(arg) || isNumber(arg)) {
-                            argout += arg;
-                        } else if (arg.startsWith("new")) {
-                            argout += arg;
-                        } else argout += "\"" + arg + "\"";
+                        else if (isBoolean(arg) || isNumber(arg)) argout += arg;
+                        else if (arg.startsWith("new ")) argout += arg;
+                        else argout += "\"" + arg + "\"";
                         argout += ", ";
                     }
                     if (argout.length() >= 2) argout = argout.substring(0, argout.length() - ", ".length());

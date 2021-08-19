@@ -11,7 +11,7 @@ public class Main {
 
         System.out.println("Welcome to the CBScript Compiler");
 
-        if (args.length > 2) new Project(Paths.get(args[0]), Paths.get(args[1])).build();
+        if (args.length >= 2) new Project(Paths.get(args[0]), Paths.get(args[1])).build();
         else if (args.length == 1) System.out.println("Missing Argument: Maven Directory");
         else System.out.println("Missing Argument: Run Path");
 
