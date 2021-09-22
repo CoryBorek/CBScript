@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 
 public class Main {
 
-    public static void main(String[] args) throws IOException, InterruptedException, MavenInvocationException {
+    public static void main(String[] args) throws IOException, MavenInvocationException {
 
         System.out.println("Welcome to the CBScript Compiler");
 

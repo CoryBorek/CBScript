@@ -133,6 +133,8 @@ public class ClassParser {
                     for (Map<String,Object> function : functions) {
                         //If it actually is a function,run
                         if (function.containsKey("function")) {
+                            if(function.containsKey("annotation")) out += "@" + function.get("annotation") + "\n";
+
                             //Declare function and arguments
                             out += function.get("function") + "(";
                             if (function.containsKey("args")) out += function.get("args");
