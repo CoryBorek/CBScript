@@ -9,7 +9,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, MavenInvocationException {
 
-        System.out.println("Welcome to the CBScript Compiler");
+        System.out.println("Welcome to the CBScript Compiler v1.1");
 
         if (args.length >= 2) new Project(Paths.get(args[0]), Paths.get(args[1])).build();
         else if (args.length == 1) System.out.println("Missing Argument: Maven Directory");

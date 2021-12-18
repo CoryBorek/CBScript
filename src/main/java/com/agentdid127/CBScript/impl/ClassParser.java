@@ -222,6 +222,22 @@ public class ClassParser {
                 }
                 out += "}\n";
             }
+            else if (item.containsKey("elif")) {
+                out += "else if (" + item.get("elif") + ") {";
+                if (item.containsKey("items")) {
+                    ArrayList<Map<String, Object>> forItems = (ArrayList<Map<String, Object>>) item.get("items");
+                    out = runFunction(out, forItems);
+                }
+                out += "}\n";
+            }
+            else if (item.containsKey("else")) {
+                out += "else {";
+                if (item.containsKey("items")) {
+                    ArrayList<Map<String, Object>> forItems = (ArrayList<Map<String, Object>>) item.get("items");
+                    out = runFunction(out, forItems);
+                }
+                out += "}\n";
+            }
             //Run a function;
             else if (item.containsKey("runfn")) {
                 out += item.get("runfn") + "(";
