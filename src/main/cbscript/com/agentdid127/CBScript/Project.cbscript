@@ -1,0 +1,115 @@
+package: 'com.agentdid127.CBScript'
+
+import:
+  - item: 'com.agentdid127.CBScript.impl.ClassParser'
+  - item: 'com.agentdid127.CBScript.impl.PomCompiler'
+  - item: 'org.apache.maven.shared.invoker.*'
+
+  - item: 'java.io.*'
+  - item: 'java.nio.file.Files'
+  - item: 'java.nio.file.Path'
+  - item: 'java.nio.file.Paths'
+  - item: 'java.util.ArrayList'
+  - item: 'java.util.List'
+
+class:
+  setup: 'public ;; Project'
+  vars:
+    - var: 'private Path ;; projectPath'
+    - var: 'private Path ;; mavenHome'
+
+  functions:
+    # Project Class, grabs the project you are compiling
+    - function: 'public Project'
+      args: 'Path projectPath, Path mavenHome'
+      items:
+        - var: ';; this.projectPath'
+          data: ';;projectPath'
+        - var: ';; this.mavenHome'
+          data: ';;mavenHome'
+
+    # Builds the project
+    - function: 'public void build'
+      args:
+      items:
+        # Check if Project path is a directory.
+        - if: 'projectPath.ToFile.isDirectory()'
+          items:
+            # Get some information on the project
+            - var: 'File ;; project'
+              data: ';;projectPath.toFile()'
+            - var: 'String ;; name'
+              data: ';;project.getName()'
+            - var: 'Path ;; working'
+              data: ';;Paths.get("./" + name + "_working")'
+
+            # Checks if working directory already exists, if so, deletes it and creates a fresh one
+            - if: ';;working.toFile().exists()'
+              items:
+                - runfn: 'Util.deleteDirectoryAndContents'
+                  args: ';;working'
+            - runfn: 'Util.copyDir'
+              args: ';;projectPath, ;;working'
+
+            # Runs PomCompiler class
+            - var: 'PomCompiler ;; pomCompiler'
+              data: ';;new PomCompiler(working)'
+            - runfn: ';;pomCompiler.run'
+              args:
+
+          # Moves CBScript folder to java folder
+            - var: 'Path ;; newPath'
+              data: ';;working.resolve("src"+File.separator+"main"+File.separator+"java")'
+            - runfn: ';;Files.move'
+              args: ';;working.resolve("src"+File.separator+"main"+File.separator+"cbscript",,newPath)'
+
+            # Parses and translates CBScript classes as Java ones.
+            - var: 'ClassParser ;; classParser'
+              data: ';;new ClassParser(newPath)'
+            - runfn: ';;classParser.run'
+              args:
+
+            # if build exists, remove it.
+            - if: ';;projectPath.resolve("target").toFile().exists()'
+              items:
+                - runfn: 'Util.deleteDirectoryAndContents'
+                  args: ';;projectPath.resolve("target")'
+
+            # Creates a Maven Build
+            - var: 'InvocationRequest ;; request'
+              data: ';;new DefaultInvocationRequest()'
+            - runfn: 'request.setPomFile'
+              args: ';;working.resolve("pom.xml".toFile()'
+            - var: 'List<String> ;; goals'
+              data: ';;new ArrayList<>()'
+            - runfn: 'goals.add'
+              args: '-B'
+            - runfn: 'request.setGoals'
+              args: ';;goals'
+
+            - var: 'Invoker ;; invoker'
+              data: 'new DefaultInvoker()'
+            - runfn: 'invoker.setMavenHome'
+              args: ';;mavenHome.toFile()'
+            - runfn: 'invoker.execute'
+              args: ';;request'
+
+            # Copies Project output from maven directory to CBScript directory
+            - runfn: 'Util.copyDir'
+              args: ';;working.resolve("target"), ;;projectPath.resolve("target")'
+
+        # If project is not a directory, compile just that one
+        - else:
+            items:
+              # Copy file to temporary position
+              - runfn: 'Files.copy'
+                args: ';;projectPath, ;;projectPath.getParent().resolve(projectPath.getFileName() + "_copy"'
+
+              # Parse the original file
+              - var: 'ClassParser ;; classParser'
+                data: ';;new ClassParser(projectPath)'
+              - runfn: 'classParser.run'
+                args: ''
+              # Move the copy to the original location
+              - runfn: 'Files.move'
+                args: ';;projectPath.getParent.resolve(projectPath.getFileName() + "_copy"), ;;projectPath'

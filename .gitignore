@@ -7,7 +7,7 @@
 *build/
 *out/
 *classes/
-src/test/
+src_old/test/
 
 # Maven
 dependency-reduced-pom.xml

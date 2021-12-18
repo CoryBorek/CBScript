@@ -1,0 +1,16 @@
+package: 'com.agentdid127.CBScript'
+
+import:
+  - item: 'java.io.File'
+  - item: 'java.io.IOException'
+  - item: 'java.nio.file.Files'
+  - item: 'java.nio.file.Path'
+  - item: 'java.util.Comparator'
+
+class:
+  setup: 'public ;; Util'
+
+  functions:
+    function: 'public static void copyDir ;; throws'
+    args: 'Path src, Path dest'
+  # Copies Complete Directory and contents
