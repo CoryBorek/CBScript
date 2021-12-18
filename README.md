@@ -19,3 +19,6 @@ It should compile, and the jar should end up in the project target folder.
 ## Contributing
 Feel free to fork and Send a PR, i'd love to see what anyone can contribute.
 
+## Coolness Factor
+This language was also rewritten in CBScript itself like all the cool languages.
+
