@@ -166,7 +166,7 @@ class:
                            - if: 'function.containsKey("throws")'
                              items:
                                - var: ' ;; out'
-                                 data: ';;out + function.get("throws")'
+                                 data: ';;out + "throws " + function.get("throws")'
                            - var: ' ;; out'
                              data: ';;out + "{\n"'
                            - if: 'function.containsKey("items")'
