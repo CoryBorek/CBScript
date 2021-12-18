@@ -138,7 +138,9 @@ public class ClassParser {
                             //Declare function and arguments
                             out += function.get("function") + "(";
                             if (function.containsKey("args")) out += function.get("args");
-                            out += ") {\n";
+                            out += ") ";
+                            if (function.containsKey("throws")) out += function.get("throws");
+                            out += "{\n";
                             //Write the juicy parts of the function
                             if (function.containsKey("items")) {
                                 ArrayList<Map<String, Object>> items = (ArrayList<Map<String, Object>>) function.get("items");
