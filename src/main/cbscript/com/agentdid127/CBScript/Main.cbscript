@@ -2,6 +2,7 @@ package: 'com.agentdid127.CBScript'
 
 import:
   - item: 'java.io.IOException'
+  - item: 'org.apache.maven.shared.invoker.*'
   - item: 'java.nio.file.Paths'
 
 class:
@@ -9,17 +10,18 @@ class:
   functions:
     - function: 'public static void main'
       args: 'String[] args'
+      throws: 'IOException, MavenInvocationException'
       items:
         - runfn: 'System.out.println'
           args: 'Welcome to the CBScript Compiler v2.0-snapshot'
 
-        - if: ';;args.length >= 2'
+        - if: 'args.length >= 2'
           items:
             - var: 'Project ;; project'
-              data: ';;new Project((Paths.get(args[0]), Paths.get(args[1]))'
+              data: ';;new Project(Paths.get(args[0]), Paths.get(args[1]))'
             - runfn: 'project.build'
               
-        - elif: ';;args.length == 1'
+        - elif: 'args.length == 1'
           items:
             - runfn: 'System.out.println'
               args: 'Missing Argument: Maven Directory'

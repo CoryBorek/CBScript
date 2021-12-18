@@ -13,5 +13,5 @@ project:
 
     build:
         defaultGoal: 'clean install'
-        finalName: 'Test'
+        finalName: '${project.artifactId}-${project.version}'
         mainClass: 'com.agentdid127.CBScript.Main'

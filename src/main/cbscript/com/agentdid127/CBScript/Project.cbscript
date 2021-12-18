@@ -30,9 +30,10 @@ class:
 
     # Builds the project
     - function: 'public void build'
+      throws: 'IOException, MavenInvocationException'
       items:
         # Check if Project path is a directory.
-        - if: 'projectPath.ToFile.isDirectory()'
+        - if: 'projectPath.toFile().isDirectory()'
           items:
             # Get some information on the project
             - var: 'File ;; project'
@@ -43,31 +44,31 @@ class:
               data: ';;Paths.get("./" + name + "_working")'
 
             # Checks if working directory already exists, if so, deletes it and creates a fresh one
-            - if: ';;working.toFile().exists()'
+            - if: 'working.toFile().exists()'
               items:
                 - runfn: 'Util.deleteDirectoryAndContents'
                   args: ';;working'
             - runfn: 'Util.copyDir'
-              args: ';;projectPath, ;;working'
+              args: ';;projectPath,;;working'
 
             # Runs PomCompiler class
             - var: 'PomCompiler ;; pomCompiler'
               data: ';;new PomCompiler(working)'
-            - runfn: ';;pomCompiler.run'
+            - runfn: 'pomCompiler.run'
 
           # Moves CBScript folder to java folder
             - var: 'Path ;; newPath'
               data: ';;working.resolve("src"+File.separator+"main"+File.separator+"java")'
-            - runfn: ';;Files.move'
-              args: ';;working.resolve("src"+File.separator+"main"+File.separator+"cbscript",,newPath)'
+            - runfn: 'Files.move'
+              args: ';;working.resolve("src"+File.separator+"main"+File.separator+"cbscript"),,newPath'
 
             # Parses and translates CBScript classes as Java ones.
             - var: 'ClassParser ;; classParser'
               data: ';;new ClassParser(newPath)'
-            - runfn: ';;classParser.run'
+            - runfn: 'classParser.run'
 
             # if build exists, remove it.
-            - if: ';;projectPath.resolve("target").toFile().exists()'
+            - if: 'projectPath.resolve("target").toFile().exists()'
               items:
                 - runfn: 'Util.deleteDirectoryAndContents'
                   args: ';;projectPath.resolve("target")'
@@ -76,7 +77,7 @@ class:
             - var: 'InvocationRequest ;; request'
               data: ';;new DefaultInvocationRequest()'
             - runfn: 'request.setPomFile'
-              args: ';;working.resolve("pom.xml".toFile()'
+              args: ';;working.resolve("pom.xml").toFile()'
             - var: 'List<String> ;; goals'
               data: ';;new ArrayList<>()'
             - runfn: 'goals.add'
@@ -93,20 +94,20 @@ class:
 
             # Copies Project output from maven directory to CBScript directory
             - runfn: 'Util.copyDir'
-              args: ';;working.resolve("target"), ;;projectPath.resolve("target")'
+              args: ';;working.resolve("target"),;;projectPath.resolve("target")'
 
         # If project is not a directory, compile just that one
         - else:
-            items:
+          items:
               # Copy file to temporary position
-              - runfn: 'Files.copy'
-                args: ';;projectPath, ;;projectPath.getParent().resolve(projectPath.getFileName() + "_copy"'
+            - runfn: 'Files.copy'
+              args: ';;projectPath,;;projectPath.getParent().resolve(projectPath.getFileName() + "_copy")'
 
               # Parse the original file
-              - var: 'ClassParser ;; classParser'
-                data: ';;new ClassParser(projectPath)'
-              - runfn: 'classParser.run'
+            - var: 'ClassParser ;; classParser'
+              data: 'new ClassParser(projectPath)'
+            - runfn: 'classParser.run'
                 
               # Move the copy to the original location
-              - runfn: 'Files.move'
-                args: ';;projectPath.getParent.resolve(projectPath.getFileName() + "_copy"), ;;projectPath'
+            - runfn: 'Files.move'
+              args: ';;projectPath.getParent().resolve(projectPath.getFileName() + "_copy"),;;projectPath'

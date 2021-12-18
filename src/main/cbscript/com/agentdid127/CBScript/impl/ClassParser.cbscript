@@ -22,9 +22,10 @@ class:
         - var: ' ;; this.dir'
           data: ';;dir'
     - function: 'public void run'
+      throws: 'IOException'
       
       items:
-        - if: '(;;dir.toFile.isDirectory())'
+        - if: 'dir.toFile().isDirectory()'
           items:
            - runfn: 'findFiles'
              args: ';;dir'
@@ -44,18 +45,18 @@ class:
           items:
            - var: 'File[] ;; fList'
              data: ';;directory.listFiles()'
-        - if: 'fList != null'
-          items:
-            - for: 'File file : fList'
-              items:
-                - if: 'file.isDirectory()'
-                  items:
-                    - runfn: 'findFiles'
-                      args: 'file.toPath()'
-                - else:
-                  items:
-                    - runfn: 'compileFile'
-                      args: 'file.toPath()'
+           - if: 'fList != null'
+             items:
+              - for: 'File file : fList'
+                items:
+                  - if: 'file.isDirectory()'
+                    items:
+                      - runfn: 'findFiles'
+                        args: ';;file.toPath()'
+                  - else:
+                    items:
+                      - runfn: 'compileFile'
+                        args: ';;file.toPath()'
     - function: 'private void compileFile'
       args: 'Path path'
       throws: 'IOException'
@@ -81,7 +82,7 @@ class:
             - if: 'file.containsKey("import")'
               items:
                 - var: 'ArrayList<Map<String,Object>> ;; imports'
-                  data: ';;(ArrayList<Map,String>>) file.get("import")'
+                  data: ';;(ArrayList<Map<String,Object>>) file.get("import")'
                 - for: 'Map<String,Object> item : imports'
                   items:
                     - if: 'item.containsKey("item")'
@@ -97,7 +98,7 @@ class:
                     - var: 'String[] ;; setup'
                       data: ';;classn.get("setup").toString().split(";;")'
                     - var: ' ;; out'
-                      data: ';;out + setup[0] + "class" + setup[1] + " {]n"'
+                      data: ';;out + setup[0] + "class" + setup[1] + " {\n"'
 
                 - if: 'classn.containsKey("vars")'
                   items:
@@ -109,11 +110,11 @@ class:
                         - if: 'var.containsKey("var")'
                           items:
                            - var: ' ;; out'
-                             data: ';;out + var.get("var").toString().replace(" ;; ", " "'
+                             data: ';;out + var.get("var").toString().replace(" ;; ", " ")'
                            - if: 'var.containsKey("data")'
                              items:
                                - var: 'String ;; varType'
-                                 data: ';;var.get("var").toString().split(" ;; ")[0].split(" ")[var.get("var").toString().split(" ;; ")[0].split(" ").length-1'
+                                 data: ';;var.get("var").toString().split(" ;; ")[0].split(" ")[var.get("var").toString().split(" ;; ")[0].split(" ").length-1]'
                                - var: ' ;; out'
                                  data: ';;out + " = "'
                                - runfn: 'System.out.println'
@@ -122,11 +123,11 @@ class:
                                - if: 'var.get("data").toString().startsWith(";;")'
                                  items:
                                    - var: ' ;; out'
-                                     data: ';;var.get("data").toString().replace(";;","")'
+                                     data: ';;out + var.get("data").toString().replace(";;","")'
                                - elif: 'isBoolean(var.get("data").toString()) || isNumber(var.get("data").toString())'
                                  items:
                                    - var: ' ;; out'
-                                     data: ';;var.get("data")'
+                                     data: ';;out + var.get("data")'
                                - elif: 'var.get("data").toString().startsWith("new ")'
                                  items:
                                    - var: ' ;; out'
@@ -302,7 +303,7 @@ class:
                     - var: 'String ;; argin'
                       data: ';;item.get("args").toString().replace(",,","commmma")'
                     - var: 'String[] ;; args'
-                      data: ';;argin.split(,)'
+                      data: ';;argin.split(",")'
                     - var: 'String ;; argout'
                       data: ''
                     - for: 'String arg : args'
@@ -327,7 +328,7 @@ class:
                               data: ';;argout + ", "'
 
 
-                    - if: 'argout.length >= 2'
+                    - if: 'argout.length() >= 2'
                       items:
                         - var: ' ;; argout'
                           data: ';;argout.substring(0, argout.length() - ", ".length())'
