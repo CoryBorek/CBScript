@@ -335,4 +335,17 @@ class:
                       data: ';;out + argout'
             - var: ' ;; out'
               data: ';;out + ");\n"'
-    - return: 'out'
+        - return: 'out'
+    - function: 'private boolean isNumber'
+      args: 'String item'
+      items:
+        - return: 'item.matches("-?\\d+(\\.\\d+)?")'
+    - function: 'private boolean isBoolean'
+      args: 'String item'
+      items:
+        - if: 'item.equals("true") || item.equals("false")'
+          items:
+            - return: 'true'
+        - else:
+          items:
+            - return: 'false'
