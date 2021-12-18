@@ -1,0 +1,338 @@
+package: 'com.agentdid127.CBScript.impl'
+
+import:
+  - item: 'org.yaml.snakeyaml.Yaml'
+  - item: 'java.io.*'
+  - item: 'java.nio.charset.StandardCharsets'
+  - item: 'java.nio.file.Files'
+  - item: 'java.nio.file.Path'
+  - item: 'java.util.ArrayList'\
+  - item: 'java.util.Map'
+
+class:
+  setup: 'public ;; ClassParser'
+
+  vars:
+    - var: 'private final Path ;; dir'
+
+  functions:
+    - function: 'public ClassParser'
+      args: 'Path dir'
+      items:
+        - var: ' ;; this.dir'
+          data: ';;dir'
+    - function: 'public void run'
+      args: ''
+      items:
+        - if: '(;;dir.toFile.isDirectory())'
+          items:
+           - runfn: 'findFiles'
+             args: ';;dir'
+        - else:
+          items:
+            - runfn: 'compileFile'
+              args: ';;dir'
+
+    - function: 'public void findFiles'
+      args: 'Path find'
+      throws: 'IOException'
+      items:
+        - var: 'File ;; directory'
+          data: ';;find.toFile()'
+
+        - if: ';;directory.isDirectory()'
+          items:
+           - var: 'File[] ;; fList'
+             data: ';;directory.listFiles()'
+        - if: ';;fList != null'
+          items:
+            - for: 'File file : fList'
+              items:
+                - if: ';;file.isDirectory()'
+                  items:
+                    - runfn: 'findFiles'
+                      args: 'file.toPath()'
+                - else:
+                  items:
+                    - runfn: 'compileFile'
+                      args: 'file.toPath()'
+    - function: 'private void compileFile'
+      args: 'Path path'
+      throws: 'IOException'
+      items:
+        - if: ';;path.toFile().getName().endsWith(".cbscript")'
+          items:
+            - var: 'Yaml ;; yaml'
+              data: ';;new Yaml()'
+            - var: 'InputStream ;; inputStream'
+              data: ';;new FileInputStream(path.toFile())'
+            - var: 'Map<String,Object> ;; file'
+              data: ';;yaml.load(inputStream)'
+            - var: 'String ;; out'
+              data: ';;""'
+
+            # Package
+            - if: ';;file.containsKey("package")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "package " + file.get("package") + ";\n"'
+
+            # imports
+            - if: ';;file.containsKey("import")'
+              items:
+                - var: 'ArrayList<Map<String,Object>> ;; imports'
+                  data: ';;(ArrayList<Map,String>>) file.get("import")'
+                - for: 'Map<String,Object> item : imports'
+                  items:
+                    - if: ';;item.containsKey("item")'
+                      items:
+                        - var: ' ;; out'
+                          data: 'out + "import " + item.get("item") + "\n"'
+            - if: ';;file.containsKey("class")'
+              items:
+                - var: 'Map<String,Object> ;; classn'
+                  data: ';;(Map<String,Object>) file.get("class")'
+                - if: 'classn.containsKey("setup")'
+                  items:
+                    - var: 'String[] ;; setup'
+                      data: ';;classn.get("setup").toString().split(";;")'
+                    - var: ' ;; out'
+                      data: ';;out + setup[0] + "class" + setup[1] + " {]n"'
+
+                - if: 'classn.containsKey("vars")'
+                  items:
+                    - var: 'ArrayList<Map<String,Object>> ;; vars'
+                      data: ';;(ArrayList<Map<String,Object>>) classn.get("vars")'
+
+                    - for: 'Map<String,Object> var : vars'
+                      items:
+                        - if: ';;var.containsKey("var")'
+                          items:
+                           - var: ' ;; out'
+                             data: ';;out + var.get("var").toString().replace(" ;; ", " "'
+                           - if: ';;var.containsKey("data")'
+                             items:
+                               - var: 'String ;; varType'
+                                 data: ';;var.get("var").toString().split(" ;; ")[0].split(" ")[var.get("var").toString().split(" ;; ")[0].split(" ").length-1'
+                               - var: ' ;; out'
+                                 data: ';;out + " = "'
+                               - runfn: 'System.out.println'
+                                 args: ';;varType'
+
+                               - if: 'var.get("data").toString().startsWith(";;")'
+                                 items:
+                                   - var: ' ;; out'
+                                     data: ';;var.get("data").toString().replace(";;","")'
+                               - elif: 'isBoolean(var.get("data").toString()) || isNumber(var.get("data").toString())'
+                                 items:
+                                   - var: ' ;; out'
+                                     data: ';;var.get("data")'
+                               - elif: 'var.get("data").toString().startsWith("new ")'
+                                 items:
+                                   - var: ' ;; out'
+                                     data: ';;out + var.get("data")'
+                               - elif: 'varType.equals("char")'
+                                 items:
+                                   - var: ' ;; out'
+                                     data: ';;out + "\''" + var.get("data") + "\''"'
+                               - else:
+                                 items:
+                                   - var: ' ;; out'
+                                     data: ';;out + "\"" + var.get("data") + "\""'
+                           - var : ' ;; out'
+                             data: ';;out + ";\n"'
+
+                - if: 'classn.containsKey("functions")'
+                  items:
+                    - var: 'ArrayList<Map<String,Object>> ;; functions'
+                      data: ';;(ArrayList<Map<String,Object>>) classn.get("functions")'
+
+                    - for: 'Map<String,Object> function : functions'
+                      items:
+                        - if: 'function.containsKey("function:)'
+                          items:
+                           - if: 'function.containsKey("annotation")'
+                              items:
+                                - var: ' ;; out'
+                                  data: ';;out + "@" + function.get("annotation") + "\n"'
+                           - var: ' ;; out'
+                             data: ';;out + function.get("function") + "("'
+                           - if: 'function.containsKey("args)'
+                             items:
+                               - var: ' ;; out'
+                                 data: ';;out + function.get("args")'
+                           - var: ' ;; out'
+                             data: ';;out + ") "'
+                           - if: 'function.containsKey("throws")'
+                             items:
+                               - var: ' ;; out'
+                                 data: ';;out + function.get("throws")'
+                           - var: ' ;; out'
+                             data: ';;out + "{\n"'
+                           - if: 'function.containsKey("items")'
+                             items:
+                               - var: 'ArrayList<Map<String,Object>> ;; items'
+                                 data: ';;(ArrayList<Map<String,Object>>) function.get("items")'
+                               - var: ' ;; out'
+                                 data: ';;runFunction(out,items)'
+                           - var: ' ;; out'
+                             data: ';;out + "}\n"'
+                - var: ' ;; out'
+                  data: ';;out + "}\n"'
+
+                - var: 'byte[] ;; outbytes'
+                  data: ';;out.getBytes(StandardCharsets.UTF_8)'
+                - runfn: 'inputStream.close'
+                  args: ''
+                - var: 'FileOutputStream ;; fos'
+                  data: 'new FileOutputStream(path.getParent().resolve(path.toFile().getName().replace(".cbscript",".java")).toFile())'
+                - runfn: 'fos.write'
+                  args: ';;outbytes'
+                - runfn: 'Files.delete'
+                  args: 'path'
+    - function: 'private String runFunction'
+      args: 'String out, ArrayList<Map<String,Object>> items'
+      items:
+        - for: 'Map<String,Object> item: items'
+          items:
+            - if: 'item.containsKey("var")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + item.get("var").toString().replace(" ;; ", " ")'
+                - if: 'item.containsKey("data")'
+                  items:
+                    - var: 'String ;; varType'
+                      data: ';;item.get("var").toString().split(" ;; ")[0].split(" ")[item.get("var").toString().split(" ;; ")[0].split(" ").length-1]'
+                    - var: ' ;; out'
+                      data: ';;out + " = "'
+
+                    - if: 'item.get("data").toString().startsWith(";;")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + item.get("data").toString().replace(";;", "")'
+                    - elif: 'isBoolean(item.get("data").toString()) || isNumber(item.get("data").toString())'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + item.get("data")'
+                    - elif: 'item.get("data").toString().startsWith("new ")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + item.get("data")'
+                    - elif: 'varType.equals("char")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "\''" + item.get("data") + "\''"'
+                    - else:
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "\"" + item.get("data") + "\""'
+                - var: ' ;; out'
+                  data: ';;out + ";\n"'
+            - elif: 'item.containsKey("for")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "for (" + item.get("for") + ") {\n"'
+                - if: 'item.containsKey("items")'
+                  items:
+                    - var: 'ArrayList<Map<String, Object>> ;; forItems'
+                      data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+
+                    - var: ' ;; out'
+                      data: ';;runFunction(out, forItems)'
+                - var: ' ;; out'
+                  data: ';;out + "}\n"'
+            - elif: 'item.containsKey("while")'
+                items:
+                  - var: ' ;; out'
+                    data: ';;out + "while (" + item.get("while") + ") {\n"'
+                  - if: 'item.containsKey("items")'
+                    items:
+                      - var: 'ArrayList<Map<String, Object>> ;; whileItems'
+                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+
+                      - var: ' ;; out'
+                        data: ';;runFunction(out, whileItems)'
+                  - var: ' ;; out'
+                    data: ';;out + "}\n"'
+            - elif: 'item.containsKey("if")'
+                items:
+                  - var: ' ;; out'
+                    data: ';;out + "if (" + item.get("if") + ") {\n"'
+                  - if: 'item.containsKey("items")'
+                    items:
+                      - var: 'ArrayList<Map<String, Object>> ;; ifItems'
+                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+
+                      - var: ' ;; out'
+                        data: ';;runFunction(out, ifItems)'
+                  - var: ' ;; out'
+                    data: ';;out + "}\n"'
+            - elif: 'item.containsKey("elif")'
+                items:
+                  - var: ' ;; out'
+                    data: ';;out + "else if (" + item.get("elif") + ") {\n"'
+                  - if: 'item.containsKey("items")'
+                    items:
+                      - var: 'ArrayList<Map<String, Object>> ;; forItems'
+                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+
+                      - var: ' ;; out'
+                        data: ';;runFunction(out, forItems)'
+                  - var: ' ;; out'
+                    data: ';;out + "}\n"'
+            - elif: 'item.containsKey("else")'
+                items:
+                  - var: ' ;; out'
+                    data: ';;out + "else {\n"'
+                  - if: 'item.containsKey("items")'
+                    items:
+                      - var: 'ArrayList<Map<String, Object>> ;; forItems'
+                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+
+                      - var: ' ;; out'
+                        data: ';;runFunction(out, forItems)'
+                  - var: ' ;; out'
+                    data: ';;out + "}\n"'
+            - elif: 'item.containsKey("runfn")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + item.get("runfn") + "("'
+                - if: 'item.containsKey("args")'
+                  items:
+                    - var: 'String ;; argin'
+                      data: ';;item.get("args").toString().replace(",,","commmma")'
+                    - var: 'String[] ;; args'
+                      data: ';;argin.split(,)'
+                    - var: 'String ;; argout'
+                      data: '""'
+                    - for: 'String arg : args'
+                      items:
+                        - var: ' ;; arg'
+                          data: ';;arg.replace("commmma",",")'
+                        - if: 'arg.startsWith(";;")'
+                          items:
+                            - var: ' ;; argout'
+                              data: ';;argout + arg.replace(";;","")'
+                        - elif: 'isBoolean(arg) || isNumber(arg)'
+                          items:
+                            - var: ' ;; argout'
+                              data: ';;argout + arg'
+                        - elif: 'arg.startsWith("new ")'
+                          items:
+                            - var: ' ;; argout'
+                              data: ';;argout + arg'
+                        - else:
+                          items:
+                            - var: ' ;; argout'
+                              data: ';;argout + ", "'
+
+
+                    - if: 'argout.length >= 2'
+                      items:
+                        - var: ' ;; argout'
+                          data: ';;argout.substring(0, argout.length() - ", ".length())'
+                    - var: ' ;; out'
+                      data: ';;out + argout'
+            - var: ' ;; out'
+              data: ';;out + ");\n"'
+    - return: 'out'

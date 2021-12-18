@@ -11,6 +11,19 @@ class:
   setup: 'public ;; Util'
 
   functions:
-    function: 'public static void copyDir ;; throws'
-    args: 'Path src, Path dest'
-  # Copies Complete Directory and contents
+    # Copies Complete Directory and contents
+    - function: 'public static void copyDir'
+      args: 'Path src, Path dest'
+      throws: 'IOException'
+      items:
+       - runfn: 'Files.walk(src).forEach'
+         args: ';;path -> { try Files.copy(path,, dest.resolve(src.relativize(path))); catch (IOException e) { e.printStackTrace();}}'
+    # deletes full directory
+    - function: 'public static void deleteDirectoryAndContents'
+      args: 'Path dirPath'
+      throws: 'IOException'
+      items:
+        - if: ';;dirPath.toFile.exists()'
+          items:
+            - runfn: 'Files.walk(dirPath).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach'
+              args: ';;File::delete'

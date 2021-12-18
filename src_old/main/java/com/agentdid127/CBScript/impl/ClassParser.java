@@ -240,6 +240,10 @@ public class ClassParser {
                 }
                 out += "}\n";
             }
+            else if (item.containsKey("return")) {
+                out += "return " + item.get("return") + ";\n";
+
+            }
             //Run a function;
             else if (item.containsKey("runfn")) {
                 out += item.get("runfn") + "(";

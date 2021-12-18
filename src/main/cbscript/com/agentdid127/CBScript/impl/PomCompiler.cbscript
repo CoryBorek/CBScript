@@ -1,0 +1,177 @@
+package: 'com.agentdid127.CBScript.impl'
+
+import:
+  - item: 'org.yaml.snakeyaml.Yaml'
+
+  - item: 'java.io.*'
+  - item: 'java.nio.charset.StandardCharsets'
+  - item: 'java.nio.file.Files'
+  - item: 'java.nio.file.Path'
+  - item: 'java.util.ArrayList'
+  - item: 'java.util.Map'
+
+class:
+  setup: 'public ;; PomCompiler'
+
+  vars:
+    - var: 'private Path ;; workingDir'
+
+  functions:
+    - function: 'public PomCompiler'
+      args: 'Path workingDir'
+      items:
+        - var: ';; this.workingDir'
+          data: ';;workingDir'
+
+    - function: 'public void run'
+      throws: 'IOException'
+      items:
+        # Read .cbpom as YAML file
+        - var: 'Yaml ;; yaml'
+          data: ';;new Yaml()'
+        - var: 'InputStream ;; inputStream'
+          data: ';;new FileInputStream(workingDir.resolve("project.cbpom").toFile())'
+        - var: 'Map<String,Object> ;; pom'
+          data: ';;yaml.load(inputStream'
+
+        # checks if pom is legit, if so makes a project
+        - if: ';;pom.containsKey("project")'
+          items:
+            # Output the project tag
+            - var: 'String ;; out'
+              data: '<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\nxmlns:xsi=\"http://w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n<modelVersion>4.0.0</modelVersion>\n'
+            # Get Project as object
+            - var: 'Map<String,Object> ;; project'
+              data: ';;(Map<String,Object) pom.get("project")'
+            # Group, Artifact, and Version
+            - if: ';;project.containsKey("groupId")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<groupId>" + project.get("groupId") + "</groupId>"\n'
+            - if: ';;project.containsKey("artifactId")'
+                items:
+                  - var: ' ;; out'
+                    data: ';;out + "<artifactId>" + project.get("artifactId") + "</artifactId>"\n'
+            - if: ';;project.containsKey("version")'
+                items:
+                  - var: ' ;; out'
+                    data: ';;out + "<version>" + project.get("version") + "</version>"\n'
+
+            - var: ' ;; out'
+              data: ';;out + "<packaging>jar<packaging>\n"'
+
+            if: 'project.containsKey("properties")'
+            items:
+              - var: ' ;; out'
+                data: ' ;;out + "<properties>\n"'
+              - var: 'ArrayList<Map<String,Object>> ;; properties'
+                data: ';;(ArrayList<Map<String,Object>>) project.get("properties)'
+
+              # Grabs Properties
+              - for: 'Map<String,Object> property : properties'
+                items:
+                  - if: 'property.containsKey("item") && property.containsKey("info")'
+                    items:
+                      - var: ' ;; out'
+                        data: ';;out + "<" + property.get("item") + ">" + property.get("info") + "</" + property.get("item") + ">\n"'
+
+              - var: ' ;; out'
+                data: ';;out + "</properties>\n"'
+            - if: 'project.containsKey("repositories")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<repositories>\n"'
+
+                - var: 'ArrayList<Map<String,Object>> ;; repositories'
+                  data: ';;(ArrayList<Map<String,Object>>) project.get("repositories")'
+
+                - for: 'Map<String,Object> repository : repositories'
+                  items:
+                    - var: ' ;; out'
+                      data: ';;out + "<repository>\n"'
+
+                    - if: ';;repository.containsKey("id")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "<id>" + repository.get("id") + "</id>\n"'
+                    - if: ';;repository.containsKey("url")'
+                      items:
+                        - var: ' ;; out'
+                         data: ';;out + "<url>" + repository.get("url") + "</url>\n"'
+                    - var: ' ;; out'
+                      data: ';;out + </repository>\n'
+
+                - var: ' ;; out'
+                 data: ';;out + "</repositories>\n"'
+
+            - if: 'project.containsKey("dependencies")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<dependencies>\n"'
+
+                - var: 'ArrayList<Map<String,Object>> ;; dependencies'
+                 data: ';;(ArrayList<Map<String,Object>>) project.get("dependencies")'
+                - for: ';;Map<String,Object> dependency: dependencies'
+                  items:
+                   - var: ' ;; out'
+                     data: ';;out + "<dependency>\n"'
+
+                   - if: ';;dependency.containsKey("groupId")'
+                     items:
+                      - var: ' ;; out'
+                       data: ';;out + "<groupId>" + dependency.get("groupId") + "</groupId>\n"'
+                   - if: ';;dependency.containsKey("artifactId")'
+                     items:
+                      - var: ' ;; out'
+                        data: ';;out + "<artifactId>" + dependency.get("artifactId") + "</artifactId>\n"'
+                   - if: ';;dependency.containsKey("version")'
+                     items:
+                      - var: ' ;; out'
+                        data: ';;out + "<version>" + dependency.get("version") + "</version>\n"'
+                   - if: ';;dependency.containsKey("scope")'
+                     items:
+                      - var: ' ;; out'
+                        data: ';;out + "<scope>" + dependency.get("scope") + "</scope>\n"'
+                    - var: ' ;; out'
+                      data: ';;out + "</dependency>\n"'
+              - var: ' ;; out'
+                data: ';;out + "</dependencies>\n"'
+
+        #Build Information
+            - if: ';;project.containsKey("build")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<build>\n"'
+                - var: 'Map<String,Object> ;; build'
+                  data: ';;(Map<String,Object>) project.get("build")'
+                - if: ';;build.containsKey("defaultGoal")'
+                  items:
+                    - var: ' ;; out'
+                      data: ';;out + "<defaultGoal>" + build.get("defaultGoal)" + "</defaultGoal>\n"'
+                - if: ';;build.containsKey("finalName")'
+                  items:
+                    - var: ' ;; out'
+                      data: ';;out + "<finalName>" + build.get("finalName)" + "</finalName>\n"'
+                - if: ';;build.containsKey("mainClass")'
+                  items:
+                    - var: ' ;; out'
+                      data: ';;out + "<plugins>\n<plugin>\n<groupId>org.apache.maven.plugins</groupId>\n<artifactId>maven-compiler-plugin</artifactId>\n<version>2.3.2</version>\n<configuration>\n<source>8</source>\n<target>8</target>\n</configuration>\n</plugin>\n<plugin>\n<groupId>org.apache.maven.plugins</groupId>\n<artifactId>maven-shade-plugin</artifactId>\n<version>2.4</version>\n<executions>\n<execution>\n<phase>package</phase>\n<goals>\n<goal>shade</goal>\n</goals>\n<configuration>\n<minimizeJar>false</minimizeJar>\n<filters>\n<filter>\n<artifact>*:*</artifact>\n<excludes>\n<exclude>META-INF/*.SF</exclude>\n<exclude>META-INF/*.DSA</exclude>\n<exclude>META-INF/*.RSA</exclude>\n</excludes>\n</filter>\n</filters>\n</configuration>\n</execution>\n</executions>\n</plugin>\n<plugin>\n<groupId>org.apache.maven.plugins</groupId>\n<artifactId>maven-jar-plugin</artifactId><version>2.4</version>\n<configuration>\n<archive>\n<manifest>\n<mainClass>" + build.get("mainClass") + "</mainClass>\n</manifest>\n</archive>\n</configuration>\n</plugin>\n</plugins>\n'
+                    - var: ' ;; out'
+                      data: ';;out + "</build>"'
+            - var: ' ;; out'
+              data: ';;out + "</project>'
+            - var: 'byte[] ;; outbytes'
+              data: ';;out.getBytes(StandardCharsets.UTF_8)'
+            - runfn: 'inputStream.close'
+              args: ''
+
+            - var: 'FileOutputStream ;; fos'
+              data: ';;new FileOutputStream(workingDir.resolve("pom.xml").toFile())'
+            - runfn: 'fos.write'
+              args: ';;outbytes'
+            - runfn: 'Files.delete'
+              args: ';;workingDir.resolve("project.cbpom")'
+        - else:
+          items:
+            - runfn: 'System.out.println'
+              args: 'File did not find project. Please Check your Syntax'
