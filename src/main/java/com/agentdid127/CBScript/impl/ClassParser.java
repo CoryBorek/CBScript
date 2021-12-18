@@ -139,7 +139,7 @@ public class ClassParser {
                             out += function.get("function") + "(";
                             if (function.containsKey("args")) out += function.get("args");
                             out += ") ";
-                            if (function.containsKey("throws")) out += function.get("throws");
+                            if (function.containsKey("throws")) out += "throws" + function.get("throws");
                             out += "{\n";
                             //Write the juicy parts of the function
                             if (function.containsKey("items")) {
