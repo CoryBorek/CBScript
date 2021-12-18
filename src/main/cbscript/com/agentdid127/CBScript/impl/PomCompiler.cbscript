@@ -35,7 +35,7 @@ class:
           data: ';;yaml.load(inputStream'
 
         # checks if pom is legit, if so makes a project
-        - if: ';;pom.containsKey("project")'
+        - if: 'pom.containsKey("project")'
           items:
             # Output the project tag
             - var: 'String ;; out'
@@ -44,39 +44,39 @@ class:
             - var: 'Map<String,Object> ;; project'
               data: ';;(Map<String,Object) pom.get("project")'
             # Group, Artifact, and Version
-            - if: ';;project.containsKey("groupId")'
+            - if: 'project.containsKey("groupId")'
               items:
                 - var: ' ;; out'
-                  data: ';;out + "<groupId>" + project.get("groupId") + "</groupId>"\n'
-            - if: ';;project.containsKey("artifactId")'
-                items:
-                  - var: ' ;; out'
-                    data: ';;out + "<artifactId>" + project.get("artifactId") + "</artifactId>"\n'
-            - if: ';;project.containsKey("version")'
-                items:
-                  - var: ' ;; out'
-                    data: ';;out + "<version>" + project.get("version") + "</version>"\n'
+                  data: ';;out + "<groupId>" + project.get("groupId") + "</groupId>\n"'
+            - if: 'project.containsKey("artifactId")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<artifactId>" + project.get("artifactId") + "</artifactId>\n"'
+            - if: 'project.containsKey("version")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<version>" + project.get("version") + "</version>\n"'
 
             - var: ' ;; out'
               data: ';;out + "<packaging>jar<packaging>\n"'
 
-            if: 'project.containsKey("properties")'
-            items:
-              - var: ' ;; out'
-                data: ' ;;out + "<properties>\n"'
-              - var: 'ArrayList<Map<String,Object>> ;; properties'
-                data: ';;(ArrayList<Map<String,Object>>) project.get("properties)'
+            - if: 'project.containsKey("properties")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "<properties>\n"'
+                - var: 'ArrayList<Map<String,Object>> ;; properties'
+                  data: ';;(ArrayList<Map<String,Object>>) project.get("properties)'
 
-              # Grabs Properties
-              - for: 'Map<String,Object> property : properties'
-                items:
-                  - if: 'property.containsKey("item") && property.containsKey("info")'
-                    items:
-                      - var: ' ;; out'
-                        data: ';;out + "<" + property.get("item") + ">" + property.get("info") + "</" + property.get("item") + ">\n"'
+                # Grabs Properties
+                - for: 'Map<String,Object> property : properties'
+                  items:
+                    - if: 'property.containsKey("item") && property.containsKey("info")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "<" + property.get("item") + ">" + property.get("info") + "</" + property.get("item") + ">\n"'
 
-              - var: ' ;; out'
-                data: ';;out + "</properties>\n"'
+                - var: ' ;; out'
+                  data: ';;out + "</properties>\n"'
             - if: 'project.containsKey("repositories")'
               items:
                 - var: ' ;; out'
@@ -90,19 +90,19 @@ class:
                     - var: ' ;; out'
                       data: ';;out + "<repository>\n"'
 
-                    - if: ';;repository.containsKey("id")'
+                    - if: 'repository.containsKey("id")'
                       items:
                         - var: ' ;; out'
                           data: ';;out + "<id>" + repository.get("id") + "</id>\n"'
-                    - if: ';;repository.containsKey("url")'
+                    - if: 'repository.containsKey("url")'
                       items:
                         - var: ' ;; out'
-                         data: ';;out + "<url>" + repository.get("url") + "</url>\n"'
+                          data: ';;out + "<url>" + repository.get("url") + "</url>\n"'
                     - var: ' ;; out'
-                      data: ';;out + </repository>\n'
+                      data: ';;out + "</repository>\n"'
 
                 - var: ' ;; out'
-                 data: ';;out + "</repositories>\n"'
+                  data: ';;out + "</repositories>\n"'
 
             - if: 'project.containsKey("dependencies")'
               items:
@@ -110,49 +110,49 @@ class:
                   data: ';;out + "<dependencies>\n"'
 
                 - var: 'ArrayList<Map<String,Object>> ;; dependencies'
-                 data: ';;(ArrayList<Map<String,Object>>) project.get("dependencies")'
+                  data: ';;(ArrayList<Map<String,Object>>) project.get("dependencies")'
                 - for: ';;Map<String,Object> dependency: dependencies'
                   items:
-                   - var: ' ;; out'
-                     data: ';;out + "<dependency>\n"'
-
-                   - if: ';;dependency.containsKey("groupId")'
-                     items:
-                      - var: ' ;; out'
-                       data: ';;out + "<groupId>" + dependency.get("groupId") + "</groupId>\n"'
-                   - if: ';;dependency.containsKey("artifactId")'
-                     items:
-                      - var: ' ;; out'
-                        data: ';;out + "<artifactId>" + dependency.get("artifactId") + "</artifactId>\n"'
-                   - if: ';;dependency.containsKey("version")'
-                     items:
-                      - var: ' ;; out'
-                        data: ';;out + "<version>" + dependency.get("version") + "</version>\n"'
-                   - if: ';;dependency.containsKey("scope")'
-                     items:
-                      - var: ' ;; out'
-                        data: ';;out + "<scope>" + dependency.get("scope") + "</scope>\n"'
                     - var: ' ;; out'
-                      data: ';;out + "</dependency>\n"'
-              - var: ' ;; out'
-                data: ';;out + "</dependencies>\n"'
+                      data: ';;out + "<dependency>\n"'
 
-        #Build Information
-            - if: ';;project.containsKey("build")'
+                    - if: 'dependency.containsKey("groupId")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "<groupId>" + dependency.get("groupId") + "</groupId>\n"'
+                    - if: 'dependency.containsKey("artifactId")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "<artifactId>" + dependency.get("artifactId") + "</artifactId>\n"'
+                    - if: 'dependency.containsKey("version")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "<version>" + dependency.get("version") + "</version>\n"'
+                    - if: 'dependency.containsKey("scope")'
+                      items:
+                        - var: ' ;; out'
+                          data: ';;out + "<scope>" + dependency.get("scope") + "</scope>\n"'
+                        - var: ' ;; out'
+                          data: ';;out + "</dependency>\n"'
+                - var: ' ;; out'
+                  data: ';;out + "</dependencies>\n"'
+
+            #Build Information
+            - if: 'project.containsKey("build")'
               items:
                 - var: ' ;; out'
                   data: ';;out + "<build>\n"'
                 - var: 'Map<String,Object> ;; build'
                   data: ';;(Map<String,Object>) project.get("build")'
-                - if: ';;build.containsKey("defaultGoal")'
+                - if: 'build.containsKey("defaultGoal")'
                   items:
                     - var: ' ;; out'
                       data: ';;out + "<defaultGoal>" + build.get("defaultGoal)" + "</defaultGoal>\n"'
-                - if: ';;build.containsKey("finalName")'
+                - if: 'build.containsKey("finalName")'
                   items:
                     - var: ' ;; out'
                       data: ';;out + "<finalName>" + build.get("finalName)" + "</finalName>\n"'
-                - if: ';;build.containsKey("mainClass")'
+                - if: 'build.containsKey("mainClass")'
                   items:
                     - var: ' ;; out'
                       data: ';;out + "<plugins>\n<plugin>\n<groupId>org.apache.maven.plugins</groupId>\n<artifactId>maven-compiler-plugin</artifactId>\n<version>2.3.2</version>\n<configuration>\n<source>8</source>\n<target>8</target>\n</configuration>\n</plugin>\n<plugin>\n<groupId>org.apache.maven.plugins</groupId>\n<artifactId>maven-shade-plugin</artifactId>\n<version>2.4</version>\n<executions>\n<execution>\n<phase>package</phase>\n<goals>\n<goal>shade</goal>\n</goals>\n<configuration>\n<minimizeJar>false</minimizeJar>\n<filters>\n<filter>\n<artifact>*:*</artifact>\n<excludes>\n<exclude>META-INF/*.SF</exclude>\n<exclude>META-INF/*.DSA</exclude>\n<exclude>META-INF/*.RSA</exclude>\n</excludes>\n</filter>\n</filters>\n</configuration>\n</execution>\n</executions>\n</plugin>\n<plugin>\n<groupId>org.apache.maven.plugins</groupId>\n<artifactId>maven-jar-plugin</artifactId><version>2.4</version>\n<configuration>\n<archive>\n<manifest>\n<mainClass>" + build.get("mainClass") + "</mainClass>\n</manifest>\n</archive>\n</configuration>\n</plugin>\n</plugins>\n'
@@ -163,7 +163,7 @@ class:
             - var: 'byte[] ;; outbytes'
               data: ';;out.getBytes(StandardCharsets.UTF_8)'
             - runfn: 'inputStream.close'
-              args: ''
+              
 
             - var: 'FileOutputStream ;; fos'
               data: ';;new FileOutputStream(workingDir.resolve("pom.xml").toFile())'

@@ -18,7 +18,7 @@ class:
             - var: 'Project ;; project'
               data: ';;new Project((Paths.get(args[0]), Paths.get(args[1]))'
             - runfn: 'project.build'
-              data: ''
+              
         - elif: ';;args.length == 1'
           items:
             - runfn: 'System.out.println'

@@ -6,7 +6,7 @@ import:
   - item: 'java.nio.charset.StandardCharsets'
   - item: 'java.nio.file.Files'
   - item: 'java.nio.file.Path'
-  - item: 'java.util.ArrayList'\
+  - item: 'java.util.ArrayList'
   - item: 'java.util.Map'
 
 class:
@@ -22,7 +22,7 @@ class:
         - var: ' ;; this.dir'
           data: ';;dir'
     - function: 'public void run'
-      args: ''
+      
       items:
         - if: '(;;dir.toFile.isDirectory())'
           items:
@@ -40,15 +40,15 @@ class:
         - var: 'File ;; directory'
           data: ';;find.toFile()'
 
-        - if: ';;directory.isDirectory()'
+        - if: 'directory.isDirectory()'
           items:
            - var: 'File[] ;; fList'
              data: ';;directory.listFiles()'
-        - if: ';;fList != null'
+        - if: 'fList != null'
           items:
             - for: 'File file : fList'
               items:
-                - if: ';;file.isDirectory()'
+                - if: 'file.isDirectory()'
                   items:
                     - runfn: 'findFiles'
                       args: 'file.toPath()'
@@ -60,7 +60,7 @@ class:
       args: 'Path path'
       throws: 'IOException'
       items:
-        - if: ';;path.toFile().getName().endsWith(".cbscript")'
+        - if: 'path.toFile().getName().endsWith(".cbscript")'
           items:
             - var: 'Yaml ;; yaml'
               data: ';;new Yaml()'
@@ -69,26 +69,26 @@ class:
             - var: 'Map<String,Object> ;; file'
               data: ';;yaml.load(inputStream)'
             - var: 'String ;; out'
-              data: ';;""'
+              data: ''
 
             # Package
-            - if: ';;file.containsKey("package")'
+            - if: 'file.containsKey("package")'
               items:
                 - var: ' ;; out'
                   data: ';;out + "package " + file.get("package") + ";\n"'
 
             # imports
-            - if: ';;file.containsKey("import")'
+            - if: 'file.containsKey("import")'
               items:
                 - var: 'ArrayList<Map<String,Object>> ;; imports'
                   data: ';;(ArrayList<Map,String>>) file.get("import")'
                 - for: 'Map<String,Object> item : imports'
                   items:
-                    - if: ';;item.containsKey("item")'
+                    - if: 'item.containsKey("item")'
                       items:
                         - var: ' ;; out'
-                          data: 'out + "import " + item.get("item") + "\n"'
-            - if: ';;file.containsKey("class")'
+                          data: ';;out + "import " + item.get("item") + "\n"'
+            - if: 'file.containsKey("class")'
               items:
                 - var: 'Map<String,Object> ;; classn'
                   data: ';;(Map<String,Object>) file.get("class")'
@@ -106,11 +106,11 @@ class:
 
                     - for: 'Map<String,Object> var : vars'
                       items:
-                        - if: ';;var.containsKey("var")'
+                        - if: 'var.containsKey("var")'
                           items:
                            - var: ' ;; out'
                              data: ';;out + var.get("var").toString().replace(" ;; ", " "'
-                           - if: ';;var.containsKey("data")'
+                           - if: 'var.containsKey("data")'
                              items:
                                - var: 'String ;; varType'
                                  data: ';;var.get("var").toString().split(" ;; ")[0].split(" ")[var.get("var").toString().split(" ;; ")[0].split(" ").length-1'
@@ -149,15 +149,15 @@ class:
 
                     - for: 'Map<String,Object> function : functions'
                       items:
-                        - if: 'function.containsKey("function:)'
+                        - if: 'function.containsKey("function")'
                           items:
                            - if: 'function.containsKey("annotation")'
-                              items:
-                                - var: ' ;; out'
-                                  data: ';;out + "@" + function.get("annotation") + "\n"'
+                             items:
+                              - var: ' ;; out'
+                                data: ';;out + "@" + function.get("annotation") + "\n"'
                            - var: ' ;; out'
                              data: ';;out + function.get("function") + "("'
-                           - if: 'function.containsKey("args)'
+                           - if: 'function.containsKey("args")'
                              items:
                                - var: ' ;; out'
                                  data: ';;out + function.get("args")'
@@ -183,13 +183,13 @@ class:
                 - var: 'byte[] ;; outbytes'
                   data: ';;out.getBytes(StandardCharsets.UTF_8)'
                 - runfn: 'inputStream.close'
-                  args: ''
+                  
                 - var: 'FileOutputStream ;; fos'
                   data: 'new FileOutputStream(path.getParent().resolve(path.toFile().getName().replace(".cbscript",".java")).toFile())'
                 - runfn: 'fos.write'
                   args: ';;outbytes'
                 - runfn: 'Files.delete'
-                  args: 'path'
+                  args: ';;path'
     - function: 'private String runFunction'
       args: 'String out, ArrayList<Map<String,Object>> items'
       items:
@@ -242,57 +242,57 @@ class:
                 - var: ' ;; out'
                   data: ';;out + "}\n"'
             - elif: 'item.containsKey("while")'
-                items:
-                  - var: ' ;; out'
-                    data: ';;out + "while (" + item.get("while") + ") {\n"'
-                  - if: 'item.containsKey("items")'
-                    items:
-                      - var: 'ArrayList<Map<String, Object>> ;; whileItems'
-                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "while (" + item.get("while") + ") {\n"'
+                - if: 'item.containsKey("items")'
+                  items:
+                    - var: 'ArrayList<Map<String, Object>> ;; whileItems'
+                      data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
 
-                      - var: ' ;; out'
-                        data: ';;runFunction(out, whileItems)'
-                  - var: ' ;; out'
-                    data: ';;out + "}\n"'
+                    - var: ' ;; out'
+                      data: ';;runFunction(out, whileItems)'
+                - var: ' ;; out'
+                  data: ';;out + "}\n"'
             - elif: 'item.containsKey("if")'
-                items:
-                  - var: ' ;; out'
-                    data: ';;out + "if (" + item.get("if") + ") {\n"'
-                  - if: 'item.containsKey("items")'
-                    items:
-                      - var: 'ArrayList<Map<String, Object>> ;; ifItems'
-                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "if (" + item.get("if") + ") {\n"'
+                - if: 'item.containsKey("items")'
+                  items:
+                    - var: 'ArrayList<Map<String, Object>> ;; ifItems'
+                      data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
 
-                      - var: ' ;; out'
-                        data: ';;runFunction(out, ifItems)'
-                  - var: ' ;; out'
-                    data: ';;out + "}\n"'
+                    - var: ' ;; out'
+                      data: ';;runFunction(out, ifItems)'
+                - var: ' ;; out'
+                  data: ';;out + "}\n"'
             - elif: 'item.containsKey("elif")'
-                items:
-                  - var: ' ;; out'
-                    data: ';;out + "else if (" + item.get("elif") + ") {\n"'
-                  - if: 'item.containsKey("items")'
-                    items:
-                      - var: 'ArrayList<Map<String, Object>> ;; forItems'
-                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "else if (" + item.get("elif") + ") {\n"'
+                - if: 'item.containsKey("items")'
+                  items:
+                    - var: 'ArrayList<Map<String, Object>> ;; forItems'
+                      data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
 
-                      - var: ' ;; out'
-                        data: ';;runFunction(out, forItems)'
-                  - var: ' ;; out'
-                    data: ';;out + "}\n"'
+                    - var: ' ;; out'
+                      data: ';;runFunction(out, forItems)'
+                - var: ' ;; out'
+                  data: ';;out + "}\n"'
             - elif: 'item.containsKey("else")'
-                items:
-                  - var: ' ;; out'
-                    data: ';;out + "else {\n"'
-                  - if: 'item.containsKey("items")'
-                    items:
-                      - var: 'ArrayList<Map<String, Object>> ;; forItems'
-                        data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
+              items:
+                - var: ' ;; out'
+                  data: ';;out + "else {\n"'
+                - if: 'item.containsKey("items")'
+                  items:
+                    - var: 'ArrayList<Map<String, Object>> ;; forItems'
+                      data: ';;(ArrayList<Map<String, Object>>) item.get("items")'
 
-                      - var: ' ;; out'
-                        data: ';;runFunction(out, forItems)'
-                  - var: ' ;; out'
-                    data: ';;out + "}\n"'
+                    - var: ' ;; out'
+                      data: ';;runFunction(out, forItems)'
+                - var: ' ;; out'
+                  data: ';;out + "}\n"'
             - elif: 'item.containsKey("runfn")'
               items:
                 - var: ' ;; out'
@@ -304,7 +304,7 @@ class:
                     - var: 'String[] ;; args'
                       data: ';;argin.split(,)'
                     - var: 'String ;; argout'
-                      data: '""'
+                      data: ''
                     - for: 'String arg : args'
                       items:
                         - var: ' ;; arg'

@@ -23,14 +23,13 @@ class:
     - function: 'public Project'
       args: 'Path projectPath, Path mavenHome'
       items:
-        - var: ';; this.projectPath'
+        - var: ' ;; this.projectPath'
           data: ';;projectPath'
-        - var: ';; this.mavenHome'
+        - var: ' ;; this.mavenHome'
           data: ';;mavenHome'
 
     # Builds the project
     - function: 'public void build'
-      args:
       items:
         # Check if Project path is a directory.
         - if: 'projectPath.ToFile.isDirectory()'
@@ -55,7 +54,6 @@ class:
             - var: 'PomCompiler ;; pomCompiler'
               data: ';;new PomCompiler(working)'
             - runfn: ';;pomCompiler.run'
-              args:
 
           # Moves CBScript folder to java folder
             - var: 'Path ;; newPath'
@@ -67,7 +65,6 @@ class:
             - var: 'ClassParser ;; classParser'
               data: ';;new ClassParser(newPath)'
             - runfn: ';;classParser.run'
-              args:
 
             # if build exists, remove it.
             - if: ';;projectPath.resolve("target").toFile().exists()'
@@ -109,7 +106,7 @@ class:
               - var: 'ClassParser ;; classParser'
                 data: ';;new ClassParser(projectPath)'
               - runfn: 'classParser.run'
-                args: ''
+                
               # Move the copy to the original location
               - runfn: 'Files.move'
                 args: ';;projectPath.getParent.resolve(projectPath.getFileName() + "_copy"), ;;projectPath'
