@@ -110,7 +110,7 @@ class:
                         - if: 'var.containsKey("var")'
                           items:
                            - var: ' ;; out'
-                             data: ';;out + var.get("var").toString().replace(" ;; ", " ")'
+                             data: ';;out + var.get("var").toString().substring(2)'
                            - if: 'var.containsKey("data")'
                              items:
                                - var: 'String ;; varType'
@@ -210,7 +210,7 @@ class:
                     - if: 'item.get("data").toString().startsWith(";;")'
                       items:
                         - var: ' ;; out'
-                          data: ';;out + item.get("data").toString().replace(";;", "")'
+                          data: ';;out + item.get("data").toString().substring(2)'
                     - elif: 'isBoolean(item.get("data").toString()) || isNumber(item.get("data").toString())'
                       items:
                         - var: ' ;; out'
@@ -313,7 +313,7 @@ class:
                         - if: 'arg.startsWith(";;")'
                           items:
                             - var: ' ;; argout'
-                              data: ';;argout + arg.replace(";;","")'
+                              data: ';;argout + arg.substring(2)'
                         - elif: 'isBoolean(arg) || isNumber(arg)'
                           items:
                             - var: ' ;; argout'
@@ -325,17 +325,17 @@ class:
                         - else:
                           items:
                             - var: ' ;; argout'
-                              data: ';;argout + ", "'
-
-
-                    - if: 'argout.length() >= 2'
+                              data: ';;argout + "\"" + arg + "\""'
+                        - var: ' ;; argout'
+                          data: ';;argout + ", "'
+                    - if: 'argout.endsWith(", ")'
                       items:
                         - var: ' ;; argout'
                           data: ';;argout.substring(0, argout.length() - ", ".length())'
                     - var: ' ;; out'
                       data: ';;out + argout'
-            - var: ' ;; out'
-              data: ';;out + ");\n"'
+                - var: ' ;; out'
+                  data: ';;out + ");\n"'
         - return: 'out'
     - function: 'private boolean isNumber'
       args: 'String item'
