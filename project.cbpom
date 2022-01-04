@@ -1,7 +1,7 @@
 project:
     groupId: 'com.agentdid127'
     artifactId: 'CBScript'
-    version: '2.0'
+    version: '2.1'
 
     dependencies:
         - groupId: 'org.yaml'

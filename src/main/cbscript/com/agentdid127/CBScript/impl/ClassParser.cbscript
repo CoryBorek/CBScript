@@ -23,7 +23,7 @@ class:
           data: ';;dir'
     - function: 'public void run'
       throws: 'IOException'
-      
+
       items:
         - if: 'dir.toFile().isDirectory()'
           items:
@@ -96,7 +96,7 @@ class:
                 - if: 'classn.containsKey("setup")'
                   items:
                     - var: 'String[] ;; setup'
-                      data: ';;classn.get("setup").toString().split(";;")'
+                      data: ';;file.get("class").toString().split(";;")'
                     - var: ' ;; out'
                       data: ';;out + setup[0] + "class" + setup[1] + " {\n"'
 
@@ -184,7 +184,7 @@ class:
                 - var: 'byte[] ;; outbytes'
                   data: ';;out.getBytes(StandardCharsets.UTF_8)'
                 - runfn: 'inputStream.close'
-                  
+
                 - var: 'FileOutputStream ;; fos'
                   data: 'new FileOutputStream(path.getParent().resolve(path.toFile().getName().replace(".cbscript",".java")).toFile())'
                 - runfn: 'fos.write'

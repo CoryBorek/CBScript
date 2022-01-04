@@ -132,8 +132,8 @@ class:
                       items:
                         - var: ' ;; out'
                           data: ';;out + "<scope>" + dependency.get("scope") + "</scope>\n"'
-                        - var: ' ;; out'
-                          data: ';;out + "</dependency>\n"'
+                    - var: ' ;; out'
+                      data: ';;out + "</dependency>\n"'
                 - var: ' ;; out'
                   data: ';;out + "</dependencies>\n"'
 
@@ -163,7 +163,7 @@ class:
             - var: 'byte[] ;; outbytes'
               data: ';;out.getBytes(StandardCharsets.UTF_8)'
             - runfn: 'inputStream.close'
-              
+
 
             - var: 'FileOutputStream ;; fos'
               data: ';;new FileOutputStream(workingDir.resolve("pom.xml").toFile())'
