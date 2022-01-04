@@ -96,7 +96,7 @@ class:
                 - if: 'classn.containsKey("setup")'
                   items:
                     - var: 'String[] ;; setup'
-                      data: ';;file.get("class").toString().split(";;")'
+                      data: ';;classn.get("setup").toString().split(";;")'
                     - var: ' ;; out'
                       data: ';;out + setup[0] + "class" + setup[1] + " {\n"'
 
